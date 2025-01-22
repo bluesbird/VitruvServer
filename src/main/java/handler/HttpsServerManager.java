@@ -5,12 +5,17 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import server.AuthEndpointHandler;
 import server.HttpsRequestHandler;
+import server.CallbackEndpointHandler;
 
 import javax.net.ssl.*;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
+
+import app.VitruvServerApp;
+
 
 public class HttpsServerManager {
     private static final Logger logger = LoggerFactory.getLogger(HttpsServerManager.class);
@@ -47,11 +52,17 @@ public class HttpsServerManager {
             }
         });
 
+        // Vitruv endpoints
         server.createContext("/", new HttpsRequestHandler(forwardPort));
+
+        // VitruvServer endpoints
+        server.createContext("/auth", new AuthEndpointHandler());
+        server.createContext("/callback", new CallbackEndpointHandler());
+
         server.setExecutor(null);
         server.start();
-        logger.info("HTTPS server started on port " + port);
 
+        logger.info("HTTPS server started on port " + port);
     }
 
     public void stop() {
